@@ -1,0 +1,972 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mailboat · 批量导师邮件发送</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="auth-overlay" id="auth-overlay">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="brand-mark">ML</div>
+          <div>
+            <div class="auth-title">欢迎使用 Mailboat</div>
+            <div class="muted">请先登录或注册（本地后端）</div>
+          </div>
+        </div>
+        <div class="auth-tabs">
+          <button class="auth-tab is-active" data-auth-tab="login">登录</button>
+          <button class="auth-tab" data-auth-tab="register">注册</button>
+        </div>
+        <div class="auth-forms">
+          <div class="auth-form is-active" data-auth-form="login">
+            <label>手机号</label>
+            <input type="text" id="login-phone" placeholder="请输入手机号" maxlength="11" />
+            <label>密码</label>
+            <div class="auth-password-row">
+              <input type="password" id="login-password" placeholder="输入密码" />
+              <button
+                class="auth-eye"
+                id="login-password-toggle"
+                type="button"
+                data-auth-action="toggle-login-password"
+                aria-label="显示密码"
+              >
+                <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M1 12C3.2 7.6 7.1 5 12 5c4.9 0 8.8 2.6 11 7-2.2 4.4-6.1 7-11 7-4.9 0-8.8-2.6-11-7z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M1 12C3.2 7.6 7.1 5 12 5c4.9 0 8.8 2.6 11 7-2.2 4.4-6.1 7-11 7-4.9 0-8.8-2.6-11-7z" />
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M3 3l18 18" />
+                </svg>
+              </button>
+            </div>
+            <div class="auth-captcha is-hidden" id="login-captcha-wrap">
+              <label>图片验证码</label>
+              <div class="auth-captcha-row">
+                <input type="text" id="login-captcha-code" placeholder="请输入4位图形码" maxlength="4" />
+                <button
+                  class="auth-captcha-image-btn"
+                  id="login-captcha-refresh"
+                  type="button"
+                  data-auth-action="refresh-login-captcha"
+                  aria-label="刷新验证码"
+                >
+                  <img id="login-captcha-image" alt="captcha" />
+                </button>
+              </div>
+              <div class="muted auth-captcha-tip">看不清？点击图片刷新</div>
+            </div>
+            <div class="auth-extra">
+              <button class="auth-link" type="button" data-auth-action="forgot-password">忘记密码</button>
+            </div>
+            <button class="primary" data-auth-action="login">登录</button>
+          </div>
+          <div class="auth-form" data-auth-form="register">
+            <label>手机号</label>
+            <input type="text" id="register-phone" placeholder="请输入手机号" maxlength="11" />
+            <label>短信验证码</label>
+            <div class="auth-code-row">
+              <input type="text" id="register-code" placeholder="4位验证码" maxlength="4" />
+              <button class="ghost small" type="button" data-auth-action="send-code">发送验证码</button>
+            </div>
+            <label>密码</label>
+            <div class="auth-password-row">
+              <input type="password" id="register-password" placeholder="设置密码" />
+              <button
+                class="auth-eye"
+                id="register-password-toggle"
+                type="button"
+                data-auth-action="toggle-register-password"
+                aria-label="显示密码"
+              >
+                <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M1 12C3.2 7.6 7.1 5 12 5c4.9 0 8.8 2.6 11 7-2.2 4.4-6.1 7-11 7-4.9 0-8.8-2.6-11-7z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M1 12C3.2 7.6 7.1 5 12 5c4.9 0 8.8 2.6 11 7-2.2 4.4-6.1 7-11 7-4.9 0-8.8-2.6-11-7z" />
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M3 3l18 18" />
+                </svg>
+              </button>
+            </div>
+            <label class="check-row auth-agree-row">
+              <input type="checkbox" id="register-agree" />
+              <span>
+                我已阅读并同意
+                <button class="auth-link auth-agree-link" type="button" data-auth-action="open-auth-terms">《桌面软件许可及服务协议》</button>
+              </span>
+            </label>
+            <button class="primary" data-auth-action="register" id="register-submit" disabled>注册</button>
+          </div>
+        </div>
+        <div class="auth-foot">
+          <div class="auth-message" id="auth-message"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">ML</div>
+          <div class="brand-text">
+            <div class="brand-title">Mailboat</div>
+            <div class="brand-sub">批量导师邮件中枢</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <button class="nav-item is-active" data-view="dashboard">仪表盘</button>
+          <button class="nav-item" data-view="accounts">账号中心</button>
+          <button class="nav-item" data-view="import">导入/粘贴</button>
+          <button class="nav-item" data-view="library">导师库</button>
+          <button class="nav-item" data-view="compose">邮件模板</button>
+          <button class="nav-item" data-view="send">发送控制台</button>
+          <button class="nav-item" data-view="test">测试发送</button>
+          <button class="nav-item" data-view="logs">日志与报告</button>
+          <button class="nav-item" data-view="feedback">问题反馈</button>
+          <button class="nav-item" data-view="settings">设置</button>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="status-pill">在线 · SMTP 监测中</div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <h1 id="view-title">仪表盘</h1>
+            <p id="view-subtitle">总览发送任务、账号状态与导师池数据</p>
+          </div>
+          <div class="topbar-announcement">
+            <div class="announcement-bar is-hidden" id="announcement-bar">
+              <div class="announcement-label">公告</div>
+              <div class="announcement-marquee">
+                <div class="announcement-track" id="announcement-track">
+                  <span id="announcement-text"></span>
+                </div>
+              </div>
+              <button class="announcement-action" data-action="open-announcements">查看全部</button>
+            </div>
+          </div>
+          <div class="top-actions">
+            <button class="ghost" data-action="open-import">导入数据</button>
+            <button class="ghost" data-action="open-membership" id="membership-open-topbar">开通会员 / 续费</button>
+            <button class="primary" data-action="start-send">开始发送</button>
+            <button class="ghost small" data-action="toggle-pin" title="置顶窗口">📌</button>
+            <div class="user-meta" id="user-meta">
+              <span class="muted" id="user-email">未登录</span>
+              <button class="ghost small" data-action="logout">退出</button>
+            </div>
+          </div>
+        </header>
+
+        <section class="view is-visible" id="view-dashboard">
+          <div class="card-grid">
+            <div class="stat-card">
+              <div class="label">导师总数</div>
+              <div class="value" id="stat-total">-</div>
+              <div class="trend" id="stat-total-sub">实时读取 teachers.json</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">待发送</div>
+              <div class="value" id="stat-pending">-</div>
+              <div class="trend warn">排队中</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">已发送</div>
+              <div class="value" id="stat-sent">-</div>
+              <div class="trend good">来自日志统计</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">失败</div>
+              <div class="value" id="stat-failed">-</div>
+              <div class="trend bad">待处理</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">当日已发送</div>
+              <div class="value" id="stat-today-sent">-</div>
+              <div class="trend good" id="stat-today-sent-sub">来自 app_users.today_success_count</div>
+            </div>
+            <div class="stat-card membership-card" id="membership-card">
+              <div class="label">发送权益</div>
+              <div class="value" id="membership-status-title">免费版</div>
+              <div class="trend" id="membership-status-sub">今日免费剩余 20 / 20</div>
+              <div class="membership-card-actions">
+                <span class="status-pill" id="membership-status-chip">免费版</span>
+                <button class="ghost small" data-action="open-membership" id="membership-open-card">开通会员</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <h3>最近发送任务</h3>
+                <button class="ghost small" data-action="open-logs">查看日志</button>
+              </div>
+              <ul class="timeline" id="recent-tasks"></ul>
+            </div>
+            <div class="panel">
+              <div class="panel-header">
+                <h3>账号池实时状态</h3>
+                <button class="ghost small" data-action="open-accounts">管理账号</button>
+              </div>
+              <div class="account-cards" id="account-cards"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-accounts">
+          <div class="split split-single">
+            <div class="panel">
+              <div class="panel-header">
+                <h3>发件账号池</h3>
+                <div class="panel-actions">
+                  <div class="account-view-filter" id="accounts-view-filter">
+                    <button class="ghost small" type="button" id="accounts-view-filter-toggle">筛选账号（全部）</button>
+                    <div class="account-view-filter-menu is-hidden" id="accounts-view-filter-menu">
+                      <label class="check-row account-view-filter-row">
+                        <input type="checkbox" id="accounts-view-filter-all" checked />
+                        <span>全部账号</span>
+                      </label>
+                      <div class="account-view-filter-options" id="accounts-view-filter-options"></div>
+                    </div>
+                  </div>
+                  <button class="ghost small" data-action="add-account">添加账号</button>
+                  <button class="primary small" data-action="save-accounts">保存账号设置</button>
+                </div>
+              </div>
+              <div class="hint">可在此测试 SMTP 是否能正确登录。</div>
+              <div class="account-list" id="account-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-import">
+          <div class="import-scroll">
+            <div class="panel-stack import-panels">
+              <div class="panel collapsible" id="import-drag-panel">
+                <div class="panel-header">
+                  <div>
+                    <h3>拖拽 Excel / CSV</h3>
+                    <span class="muted"></span>
+                  </div>
+                  <div class="panel-actions">
+                    <button class="ghost small" data-action="download-import-sample">下载示例文件</button>
+                    <button class="ghost small" data-action="toggle-collapse" data-target="import-drag-body">收起</button>
+                  </div>
+                </div>
+                <div class="panel-body" id="import-drag-body">
+                  <div class="dropzone" id="dropzone">
+                    <div>
+                      <div class="drop-title">拖拽文件到此</div>
+                      <div class="muted">或点击选择文件</div>
+                    </div>
+                    <input type="file" id="file-input" />
+                  </div>
+                  <div class="file-actions">
+                    <div class="hint" id="file-hint">未选择文件</div>
+                    <button class="ghost small" data-action="clear-file">清除文件</button>
+                  </div>
+                  <div class="form-inline">
+                    <label>选择账号</label>
+                    <select id="account-select"></select>
+                  <label>发送开始时间(北京时间)</label>
+                  <div class="inline-input-row">
+                    <input type="datetime-local" step="60" id="base-time" class="time-input" />
+                    <button class="ghost small" type="button" data-action="clear-base-time">默认</button>
+                  </div>
+                  </div>
+                  <div class="panel-actions">
+                    <button class="primary" data-action="import-file">导入所选文件</button>
+                  </div>
+                </div>
+              </div>
+              <div class="panel collapsible" id="import-paste-panel">
+                <div class="panel-header">
+                  <h3>粘贴表格</h3>
+                  <div class="panel-actions">
+                    <button class="ghost small" data-action="paste-demo">粘贴示例</button>
+                    <button class="ghost small" data-action="toggle-collapse" data-target="import-paste-body">收起</button>
+                  </div>
+                </div>
+                <div class="panel-body" id="import-paste-body">
+                  <div class="table-actions">
+                    <button class="ghost small" data-action="delete-paste-rows">删除行</button>
+                    <button class="ghost small" data-action="delete-paste-cols">删除列内容</button>
+                  </div>
+                  <div class="paste-table-wrap">
+                    <table class="paste-grid" id="paste-table">
+                      <thead>
+                        <tr>
+                          <th>国家</th>
+                          <th>机构</th>
+                          <th>姓名</th>
+                          <th>姓氏*</th>
+                          <th>作者邮箱*</th>
+                          <th>与北京时间时差(小时)</th>
+                        </tr>
+                      </thead>
+                      <tbody id="paste-table-body"></tbody>
+                    </table>
+                    <div class="hint hint-split">
+                      <span>支持从 Excel 直接粘贴（第一行为标题）。</span>
+                      <span class="required-note">（* 表示必填）</span>
+                    </div>
+                  </div>
+                  <div class="form-inline">
+                    <label>选择账号</label>
+                    <select id="account-select-paste"></select>
+                  <label>发送开始时间(北京时间)</label>
+                  <div class="inline-input-row">
+                    <input type="datetime-local" step="60" id="base-time-paste" class="time-input" />
+                    <button class="ghost small" type="button" data-action="clear-base-time-paste">默认</button>
+                  </div>
+                  </div>
+                  <div class="panel-actions">
+                    <button class="ghost" data-action="parse-paste">解析字段</button>
+                    <button class="ghost" data-action="clear-paste-grid">全部清除</button>
+                    <button class="primary" data-action="import-paste">导入粘贴数据</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="panel import-preview-panel">
+              <div class="panel-header">
+                <h3>去重预览</h3>
+                <span class="muted">同一个邮箱只能绑定一个账号</span>
+              </div>
+              <div class="preview-grid">
+                <div class="preview-card">
+                  <div class="label">新增</div>
+                  <div class="value" id="preview-added">-</div>
+                </div>
+                <div class="preview-card">
+                  <div class="label">更新</div>
+                  <div class="value" id="preview-updated">-</div>
+                </div>
+                <div class="preview-card">
+                  <div class="label">冲突</div>
+                  <div class="value" id="preview-conflicts">-</div>
+                </div>
+                <div class="preview-card">
+                  <div class="label">写入 teachers.json</div>
+                  <div class="value" id="preview-write">待导入</div>
+                </div>
+              </div>
+              <div class="console" id="import-console"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-library">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>导师库（统一去重）</h3>
+              <div class="filters">
+                <button class="ghost small" data-filter="pending">未发送</button>
+                <button class="ghost small" data-filter="failed">失败</button>
+                <button class="ghost small is-active" data-filter="all">全部</button>
+                <select id="account-filter" class="ghost small"></select>
+                <button class="ghost small" data-action="select-visible-teachers">全选</button>
+                <button class="ghost small" data-action="delete-selected">删除选中</button>
+              </div>
+            </div>
+            <div class="library-scroll">
+              <div class="table-head">
+                <div class="check-cell">选择</div>
+                <div>姓名</div>
+                <div>邮箱</div>
+                <div>机构</div>
+                <div>归属账号</div>
+                <div>状态</div>
+                <div>计划发送时间</div>
+                <div>发送时间</div>
+              </div>
+              <div class="table-grid" id="teacher-table"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-compose">
+          <div class="panel-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <h3>邮件模板</h3>
+                  <div class="muted">选择账号后编辑该账号的主题与正文</div>
+                </div>
+                <div class="compose-picker">
+                  <label>选择账号</label>
+                  <select id="compose-account"></select>
+                </div>
+              </div>
+              <div class="form">
+                <label>模板库</label>
+                <div class="compose-template-row">
+                  <input type="text" id="compose-template-name" placeholder="模板名称" />
+                  <select id="compose-template-select"></select>
+                  <button class="ghost small" data-action="compose-template-apply">导入模板</button>
+                  <button class="ghost small" data-action="compose-template-save">保存为模板</button>
+                  <button class="ghost small" data-action="compose-template-delete">删除模板</button>
+                </div>
+                <div class="hint">模板包含主题、正文和附件路径，可在不同账号间复用。</div>
+                <label>邮件主题</label>
+                <input type="text" id="compose-subject" placeholder="请输入邮件主题" />
+                <label>正文模板（{teacher_name}这个不要动，其他地方可修改！！！）</label>
+                <textarea rows="14" id="compose-content" placeholder="Dear Prof. {teacher_name} ..."></textarea>
+              </div>
+              <div class="panel-actions">
+                <button class="primary" data-action="compose-save">保存到该账号</button>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header">
+                <h3>附件（账号级）</h3>
+                <button class="ghost small" data-action="compose-add-attachments">选择附件</button>
+              </div>
+              <div class="form">
+                <label>附件路径（每行一个）</label>
+                <textarea rows="10" id="compose-attachments" placeholder="C:\\path\\file.pdf"></textarea>
+                <div class="hint">该列表仅对当前选中的账号生效。</div>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" data-action="compose-clear-attachments">清空附件</button>
+                <button class="primary" data-action="compose-save">保存到该账号</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-send">
+          <div class="panel-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <h3>发送参数</h3>
+              </div>
+              <div class="form">
+                <label>发送账号（可选）</label>
+                <div class="send-account-box">
+                  <div class="send-account-head">
+                    <label class="check-row">
+                      <input type="checkbox" id="send-all" />
+                      <span>全部账号</span>
+                    </label>
+                    <span class="muted" id="send-selected-meta">已选 0 个账号</span>
+                  </div>
+                  <div class="send-account-list" id="send-account-list"></div>
+                </div>
+                <div class="hint">可勾选多个账号，未勾选将不发送。</div>
+                <label>说明</label>
+                <div class="muted">会读取账户文件中的开始时间和账号配置。</div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header">
+                <h3>发送进度</h3>
+              </div>
+              <div class="progress">
+                <div class="bar" style="width: 0%" id="send-progress"></div>
+              </div>
+              <div class="progress-meta">
+                <span id="send-status">等待发送</span>
+                <span id="send-scope">发送账号：全部账号</span>
+                <span id="send-pending">待发送：-</span>
+                <span>查看 logs/run_send.log</span>
+              </div>
+              <div class="send-progress-list" id="send-progress-list"></div>
+              <div class="panel-actions">
+                <button class="primary" data-action="execute-send">开始执行发送</button>
+                <button class="ghost" data-action="stop-send">停止发送</button>
+              </div>
+              <div class="console" id="send-console"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-test">
+          <div class="panel-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <h3>测试名单</h3>
+                <span class="muted">不会写入正式已发送记录</span>
+              </div>
+              <div class="table-actions">
+                <button class="ghost small" data-action="delete-test-rows">删除行</button>
+                <button class="ghost small" data-action="delete-test-cols">删除列内容</button>
+              </div>
+              <div class="paste-table-wrap">
+                <table class="paste-grid" id="test-table">
+                  <thead>
+                    <tr>
+                      <th>国家</th>
+                      <th>机构</th>
+                      <th>姓名</th>
+                      <th>姓氏*</th>
+                      <th>作者邮箱*</th>
+                      <th>与北京时间时差(小时)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="test-table-body"></tbody>
+                </table>
+                <div class="hint hint-split">
+                  <span>支持从 Excel 直接粘贴（第一行为标题）。</span>
+                  <span class="required-note">（* 表示必填）</span>
+                </div>
+              </div>
+              <div class="form-inline compact">
+                <label>选择账号</label>
+                <select id="test-account"></select>
+                <label>开始发送时间(北京)</label>
+                <div class="inline-input-row">
+                  <input type="datetime-local" step="60" id="test-time" />
+                  <button class="ghost small" type="button" data-action="clear-test-time">默认</button>
+                </div>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" data-action="save-test-list">保存测试名单</button>
+                <button class="primary" data-action="execute-test">测试发送</button>
+                <button class="ghost" data-action="stop-test">停止测试发送</button>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header">
+                <h3>测试结果</h3>
+              </div>
+              <div class="test-status">
+                <div class="status-pill good">SMTP 可连通</div>
+                <div class="status-pill warn">等待发送</div>
+                <div class="status-pill">不会影响 teachers.json</div>
+              </div>
+              <div class="console" id="test-console"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-logs">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>日志与报告</h3>
+              <div class="filters">
+                <button class="ghost small" data-log-filter="failed">失败</button>
+                <button class="ghost small" data-log-filter="success">成功</button>
+                <button class="ghost small is-active" data-log-filter="all">全部</button>
+                <button class="primary small" data-action="export-report">导出报告</button>
+              </div>
+            </div>
+            <div class="log-scroll">
+              <div class="log-list" id="log-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-feedback">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>问题反馈</h3>
+                <div class="muted">选择发件账号后直接发送到反馈邮箱</div>
+              </div>
+            </div>
+            <div class="form">
+              <label>发件账号</label>
+              <select id="feedback-account"></select>
+              <label>标题</label>
+              <input type="text" id="feedback-subject" placeholder="问题反馈 - 你的姓名/邮箱" />
+              <label>反馈内容</label>
+              <textarea id="feedback-message" rows="6" placeholder="请描述问题、复现步骤、截图说明等"></textarea>
+            </div>
+            <div class="panel-actions">
+              <button class="primary" data-action="feedback-send">发送反馈</button>
+            </div>
+            <div class="console" id="feedback-console"></div>
+          </div>
+        </section>
+
+        <section class="view" id="view-settings">
+          <div class="panel-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <h3>安全与存储</h3>
+              </div>
+              <div class="form">
+                <label>当前版本</label>
+                <input type="text" id="app-version" readonly />
+                <label>账号密码</label>
+                <div class="toggle is-on">本地加密</div>
+                <label>数据主目录</label>
+                <div class="inline-input-row">
+                  <input type="text" id="storage-base" readonly />
+                  <button class="ghost small" type="button" data-action="choose-storage">选择</button>
+                </div>
+                <label>数据目录</label>
+                <input type="text" id="storage-data" readonly />
+                <label>日志目录</label>
+                <input type="text" id="storage-logs" readonly />
+                <label>配置目录</label>
+                <input type="text" id="storage-config" readonly />
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <div class="help-modal is-hidden payment-modal" id="payment-modal">
+      <div class="payment-dialog">
+        <div class="payment-header">
+          <div>
+            <div class="payment-title">会员开通</div>
+            <div class="muted" id="payment-access-summary">今日免费剩余 20 / 20</div>
+          </div>
+          <button class="ghost small" data-action="close-payment-modal">关闭</button>
+        </div>
+        <div class="payment-plan-list" id="payment-plan-list"></div>
+        <div class="payment-qr-section">
+          <div class="payment-qr-box" id="payment-qr-box">
+            <div class="payment-qr-loading" id="payment-qr-loading">二维码生成中</div>
+            <img id="payment-qr-image" class="is-hidden" alt="微信支付二维码" />
+          </div>
+          <div class="payment-order-status" id="payment-order-status"></div>
+          <div class="payment-order-meta">
+            <div id="payment-order-plan">请选择套餐</div>
+            <div id="payment-order-price"></div>
+            <div id="payment-order-no"></div>
+            <div id="payment-order-expire"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="announcement-modal is-hidden" id="announcement-modal">
+      <div class="announcement-dialog">
+        <div class="announcement-header">
+          <div>
+            <div class="announcement-title">公告列表</div>
+            <div class="muted">来自系统最新公告</div>
+          </div>
+          <button class="ghost small" data-action="close-announcements">关闭</button>
+        </div>
+        <div class="announcement-list" id="announcement-list"></div>
+      </div>
+    </div>
+    <div class="help-modal is-hidden" id="authcode-help-modal">
+      <div class="help-dialog">
+        <div class="help-header">
+          <div>
+            <div class="help-title">授权码获取指引</div>
+            <div class="muted">不同邮箱入口略有差异，按下列步骤查找“授权码 / 应用专用密码”。</div>
+          </div>
+          <button class="ghost small" data-action="close-authcode-help">关闭</button>
+        </div>
+        <div class="help-grid">
+          <div class="help-card">
+            <div class="help-card-title">Gmail / Google</div>
+            <ol>
+              <li>打开 Google 账号管理页 → 安全性</li>
+              <li>启用两步验证</li>
+              <li>生成“应用专用密码”</li>
+              <li>将生成的 16 位密码填入授权码</li>
+            </ol>
+            <div class="help-figure">图示：应用专用密码</div>
+          </div>
+          <div class="help-card">
+            <div class="help-card-title">QQ 邮箱</div>
+            <ol>
+              <li>进入 QQ 邮箱 → 设置 → 账户</li>
+              <li>找到“POP3/IMAP/SMTP服务”</li>
+              <li>开启服务并生成授权码</li>
+              <li>复制授权码粘贴到这里</li>
+            </ol>
+            <div class="help-figure">图示：SMTP 授权码</div>
+          </div>
+          <div class="help-card">
+            <div class="help-card-title">163 / 126 邮箱</div>
+            <ol>
+              <li>邮箱设置 → POP3/SMTP/IMAP</li>
+              <li>开启 SMTP 服务并生成授权码</li>
+              <li>记录生成的授权码</li>
+              <li>填入授权码栏</li>
+            </ol>
+            <div class="help-figure">图示：开启 SMTP</div>
+          </div>
+          <div class="help-card">
+            <div class="help-card-title">Outlook / Office365</div>
+            <ol>
+              <li>账号安全设置 → 应用密码</li>
+              <li>开启两步验证（若未开启）</li>
+              <li>生成应用密码并保存</li>
+              <li>将应用密码填入授权码</li>
+            </ol>
+            <div class="help-figure">图示：应用密码</div>
+          </div>
+        </div>
+        <div class="help-footer muted">提示：SMTP 登录失败通常是授权码错误或未开启 SMTP 服务。</div>
+      </div>
+    </div>
+    <div class="help-modal is-hidden" id="gmail-credentials-help-modal">
+      <div class="help-dialog">
+        <div class="help-header">
+          <div>
+            <div class="help-title">Gmail API credentials.json 获取指引</div>
+            <div class="muted">用于 Gmail API（443）授权，不是 SMTP 授权码。</div>
+          </div>
+          <button class="ghost small" data-action="close-gmail-credentials-help">关闭</button>
+        </div>
+        <div class="help-grid">
+          <div class="help-card">
+            <div class="help-card-title">步骤 1：创建 Google Cloud 项目</div>
+            <ol>
+              <li>打开 Google Cloud Console</li>
+              <li>新建项目或选择已有项目</li>
+              <li>确认项目已启用结算（若需要）</li>
+            </ol>
+          </div>
+          <div class="help-card">
+            <div class="help-card-title">步骤 2：启用 Gmail API</div>
+            <ol>
+              <li>进入“API 和服务” → “库”</li>
+              <li>搜索 Gmail API 并点击启用</li>
+              <li>等待 API 启用完成</li>
+            </ol>
+          </div>
+          <div class="help-card">
+            <div class="help-card-title">步骤 3：配置 OAuth 同意屏幕</div>
+            <ol>
+              <li>进入“OAuth 同意屏幕”</li>
+              <li>应用类型选 External</li>
+              <li>填写应用名和支持邮箱并保存</li>
+            </ol>
+          </div>
+          <div class="help-card">
+            <div class="help-card-title">步骤 4：创建 OAuth 客户端</div>
+            <ol>
+              <li>进入“凭据” → “创建凭据” → “OAuth 客户端 ID”</li>
+              <li>应用类型选 Desktop app</li>
+              <li>创建后下载 JSON 文件</li>
+              <li>在账号中心点击“上传 credentials.json”导入该文件</li>
+            </ol>
+          </div>
+        </div>
+        <div class="help-footer muted">提示：每个 Gmail 账号首次绑定都会打开 Google 登录授权页，完成后本地会保存独立 token。</div>
+      </div>
+    </div>
+    <div class="help-modal is-hidden" id="auth-terms-modal">
+      <div class="help-dialog terms-dialog">
+        <div class="help-header">
+          <div>
+            <div class="help-title">Mailboat 使用条款与免责声明（源码示例）</div>
+            <div class="muted">示例版本 · 更新日期 2026-09-08</div>
+          </div>
+          <button class="ghost small" data-action="close-auth-terms">关闭</button>
+        </div>
+        <div class="terms-content">
+          <section class="terms-section">
+            <h4>一、特别提示</h4>
+            <p><strong>请您在安装、注册、登录、激活、购买、升级或使用本软件前，认真阅读并充分理解本协议全部内容，特别是免除或限制责任、授权终止、用户赔偿、自动续费、争议解决及管辖法院等条款。</strong>您通过勾选“已阅读并同意”、点击确认、完成注册、支付、安装或继续使用本软件的，即视为您已阅读、理解并同意受本协议约束。若您不同意本协议任何内容，请立即停止注册、安装或使用本软件。</p>
+          </section>
+          <section class="terms-section">
+            <h4>二、协议主体、定义与适用范围</h4>
+            <p>本协议用于说明 Mailboat 桌面客户端及其相关网络服务、升级维护、账号体系、授权校验、联网功能、云端同步和技术支持等事项。</p>
+            <p><strong>本公开源码中的协议文本仅为通用示例，不代表任何特定公司、组织或个人作出的法律承诺，也不构成法律意见。</strong>任何个人或组织如自行部署、修改、分发或提供商业服务，应根据实际业务和适用法律补充真实、完整的运营主体、隐私政策、服务条款和有效联系方式，并自行承担相应合规责任。</p>
+            <p>开源项目及商业合作联系邮箱：<a href="mailto:huaxiaohang2022@163.com">huaxiaohang2022@163.com</a></p>
+            <p>本协议适用于您对 Mailboat 桌面客户端、安装包、补丁、更新程序、账号体系、授权系统、联网功能、同步功能、后台服务及与之相关的文档、界面、模板、算法、素材、SDK、插件接口、数据接口、日志能力和技术支持的全部访问与使用行为。</p>
+            <p>本协议适用于本软件的免费版、试用版、付费版、会员版、企业版、测试版、内测版、定制版及后续升级版本。涉及个人信息处理的具体规则，以另行向您展示的隐私政策为准；如与本协议就同一事项存在不一致，以更具体、更新且合法有效的规则为准。</p>
+          </section>
+          <section class="terms-section">
+            <h4>三、协议接受与生效</h4>
+            <p>本协议自您完成在线勾选、注册登录、激活授权或首次实际使用本软件之日起生效，并在您使用本软件期间持续有效。本协议内容可通过客户端弹窗、登录页、官网、更新说明、订单页面、邮件通知、站内公告等方式展示。</p>
+            <p>我们有权基于法律法规、监管要求、合规管理、产品迭代或经营安排对本协议进行更新。更新后的协议一经公示或向您展示即生效；您在协议更新后继续使用本软件的，视为接受更新后的协议内容。</p>
+          </section>
+          <section class="terms-section">
+            <h4>四、软件许可与使用范围</h4>
+            <p><strong>本软件仅向您授予有限的、可撤销的、非独占的、不可转让、不可再许可的使用权，您获得的是软件使用许可而非软件所有权。</strong></p>
+            <ul>
+              <li>您仅可在我们明确授权的范围、期限、设备数量、账号数量、版本类型和功能边界内使用本软件。</li>
+              <li>未经我们书面许可，您不得复制、出售、出租、出借、转让、转授权、分发、公开传播、镜像部署、拆分授权、共享账号或将本软件用于超出授权范围的商业用途。</li>
+              <li>试用版、免费版、测试版、赠送权益、内测版及体验功能可能在功能、次数、时长、稳定性、技术支持和赔偿责任方面与正式商用版本存在差异，我们有权随时调整、暂停或终止相关权益。</li>
+            </ul>
+          </section>
+          <section class="terms-section">
+            <h4>五、安装、升级与版本管理</h4>
+            <ul>
+              <li>本软件为桌面客户端，您应自行确保安装环境、操作系统版本、硬件配置、磁盘空间、网络环境、系统权限、杀毒软件、防火墙、驱动程序、图形环境等满足运行要求。</li>
+              <li><strong>本软件按“现状”和“当前技术状态”提供，不承诺绝对连续、无错误、无中断、无病毒、完全兼容、满足所有目的，亦不承诺与任何历史版本、插件、脚本接口、第三方文件格式永久兼容。</strong></li>
+              <li>我们有权通过自动更新、在线补丁、强制升级、灰度发布、版本替换等方式对软件进行更新。因版本迭代产生的界面调整、功能迁移、旧版本停用、参数变化、兼容性变化，不当然构成违约。</li>
+              <li>您应在升级、迁移、重装、卸载或系统变更前自行备份本地数据、缓存、日志、配置文件、模板、附件路径及其他重要内容。因未备份造成的风险由您自行承担。</li>
+            </ul>
+          </section>
+          <section class="terms-section">
+            <h4>六、账号、授权码与设备绑定</h4>
+            <ul>
+              <li>您应提供真实、准确、完整且持续有效的注册、认证、购买、开票及联系方式信息，并在信息变更后及时更新。</li>
+              <li>您应妥善保管账号、密码、激活码、许可证文件、授权码、设备绑定信息、第三方邮箱凭据及相关安全要素；因您保管不善、共享、泄露、授权他人使用导致的一切后果，由您自行承担。</li>
+              <li>我们可根据版本规则、安全风控、业务策略或合规要求设置登录校验、设备绑定、并发限制、环境校验、二次验证、授权吊销或重新激活机制。</li>
+              <li><strong>对于异常登录、疑似破解、越权使用、批量滥用、异常设备环境或存在安全风险的情形，我们有权采取验证、限制、冻结、停用、取消授权、拒绝续费、停止更新或删除相关同步数据等措施。</strong></li>
+            </ul>
+          </section>
+          <section class="terms-section">
+            <h4>七、用户行为规范</h4>
+            <ul>
+              <li>您应确保通过本软件导入、上传、同步、发送、处理的联系人、邮件内容、附件、模板、脚本、数据及其他材料来源合法，且不侵犯任何第三方的合法权益。</li>
+              <li>您不得利用本软件从事垃圾邮件、骚扰营销、诈骗、侵权、恶意传播程序、作弊刷量、非法采集、绕过监管、攻击第三方系统或其他违法违规活动。</li>
+              <li>您不得对本软件实施反编译、反汇编、反向工程、协议破解、抓包分析、绕过授权、去除版权标识、篡改客户端、外挂、脚本滥用、接口滥用、镜像部署或据此开发竞争产品。</li>
+              <li>您应遵守第三方邮箱服务商、支付服务商、AI 服务、云服务、开放平台、SDK、插件及相关接口提供方的规则。因您违反第三方规则导致账号封禁、接口限制、服务中断或索赔争议的，由您自行处理并承担责任。</li>
+            </ul>
+          </section>
+          <section class="terms-section">
+            <h4>八、收费、订阅、续费与退款</h4>
+            <ul>
+              <li>本软件可能提供免费功能、试用权益、付费授权、会员订阅、企业授权、增值功能、次卡权益或其他收费项目，具体以购买页面、订单页面、产品说明或单独商务协议为准。</li>
+              <li><strong>除法律另有强制规定或我们另有明确承诺外，软件许可、数字化产品、已开通服务、已交付激活码、已消耗权益、定制版、企业采购版、促销版、赠送版通常不支持无理由退款。</strong></li>
+              <li>如存在自动续费，我们将以合理方式向您进行显著提示；您未按页面规则取消续费的，视为同意在下一个计费周期续费。</li>
+              <li>我们有权根据市场情况、功能变化、成本变动、商业策略调整收费标准、版本划分、权益内容、折扣政策、功能结构及命名方式；前述调整不当然构成违约。</li>
+            </ul>
+          </section>
+          <section class="terms-section">
+            <h4>九、数据、隐私与安全</h4>
+            <ul>
+              <li>为实现注册登录、授权校验、设备管理、风控审计、故障排查、发送统计、版本更新、服务优化等目的，我们可在必要范围内处理您的账号信息、设备信息、日志信息、崩溃信息、IP 地址、版本号、授权状态及您主动提交的服务数据。</li>
+              <li>涉及个人信息处理的范围、方式、目的、保存期限、共享规则及您的权利，以隐私政策及具体页面提示为准。本协议仅说明与软件许可和服务履行直接相关的数据处理边界。</li>
+              <li>您理解并同意：本软件部分功能依赖本地缓存、日志、配置文件、同步数据或第三方接口返回结果。对于非因我们故意或重大过失导致的数据损坏、文件丢失、同步延迟、状态不一致或恢复失败，我们将在法律允许范围内尽量减轻但不承诺完全消除相关风险。</li>
+              <li>您应自行建立数据备份机制，并对本地数据、业务数据及导入数据的完整性、准确性、合法性负责。</li>
+            </ul>
+          </section>
+          <section class="terms-section">
+            <h4>十、知识产权</h4>
+            <p>本软件及其相关代码、界面、图形、图标、架构、文档、数据库、模型、算法、SDK、素材、商标、商业标识及其他内容的知识产权，归我们或相关权利人所有。除本协议明确授权外，您未获得任何明示或默示权利。</p>
+            <p>本软件中可能包含第三方组件、开源组件或第三方 SDK。相关权利归其各自权利人所有，您应同时遵守相应许可条件；因第三方组件本身导致的风险，在法律允许范围内由相应权利边界确定责任。</p>
+          </section>
+          <section class="terms-section">
+            <h4>十一、第三方服务与外部链接</h4>
+            <ul>
+              <li>本软件可能接入第三方支付、短信、邮箱服务、云存储、地图、AI 接口、登录认证、插件或开放平台。第三方服务的可用性、稳定性、合规性、持续性和安全性由相应第三方自行负责。</li>
+              <li>因第三方服务异常、接口调整、配额限制、域名拦截、网络故障、策略变化、封禁、价格调整或停止运营导致的软件功能受限、中断或数据异常，我们将在法律允许范围内不承担或仅承担最低限度责任。</li>
+            </ul>
+          </section>
+          <section class="terms-section">
+            <h4>十二、服务变更、中断与终止</h4>
+            <p><strong>基于运营、安全、合规、风控、技术维护、资源安排或商业策略需要，我们有权自主决定变更、限制、暂停、中断或终止本软件部分或全部功能、接口、版本、服务支持或网络能力。</strong></p>
+            <ul>
+              <li>因系统维护、版本升级、服务器调整、第三方依赖变更、监管要求、不可抗力、网络攻击、病毒木马、通信故障、电力故障、设备异常等原因导致的服务中断、降级或功能变更，不视为违约。</li>
+              <li>如您存在违法违规、违约、侵权、破解授权、滥用服务、拒不整改、逾期付款或损害我们合法权益的情形，我们有权单方终止协议，并采取停用账号、吊销授权、停止服务器支持、关闭同步功能、拒绝售后等措施。</li>
+            </ul>
+          </section>
+          <section class="terms-section">
+            <h4>十三、违约责任</h4>
+            <p>若您违反法律法规、本协议、产品规则、授权限制或第三方规则，导致我们、关联方、合作方或第三方遭受投诉、索赔、处罚、诉讼、仲裁、调查、行政处理、技术处置或声誉损害的，您应负责妥善处理，并赔偿因此造成的全部损失。</p>
+            <p><strong>可赔偿范围包括但不限于赔偿金、和解金、行政罚款、律师费、诉讼费、仲裁费、保全费、公证费、鉴定费、执行费、差旅费、调查取证费、技术处置费用及其他合理支出。</strong></p>
+          </section>
+          <section class="terms-section">
+            <h4>十四、责任限制与免责</h4>
+            <ul>
+              <li><strong>在法律允许范围内，本软件及相关服务按“现状”“现有功能”“当前技术状态”提供，我们不对软件完全无错误、无中断、无病毒、绝对安全、绝对兼容、永久可用或完全满足您特定目的作任何明示或默示保证。</strong></li>
+              <li>对于因您设备老旧、系统异常、硬件损坏、驱动冲突、网络不稳、权限不足、杀毒软件拦截、防火墙限制、非法插件、破解补丁、误删文件、误操作、未及时备份、第三方封禁、格式兼容问题等原因导致的软件异常、功能不可用、数据丢失或业务损失，由您自行承担责任。</li>
+              <li>对于免费功能、试用功能、测试版本、内测版本、赠送权益或无偿支持，我们在法律允许范围内不承担赔偿责任；确需承担责任的，以法律允许的最低责任范围为限。</li>
+              <li><strong>除法律另有强制规定或因我们故意、重大过失造成用户损害外，我们对任何索赔承担的责任总额，以纠纷发生前连续十二个月内您就涉争软件实际支付给我们的费用总额为上限；如您未付费，则以法律允许的最低限额为上限。</strong></li>
+              <li><strong>在法律允许范围内，我们不对任何间接损失、预期利益损失、商业机会损失、停工停产损失、数据丢失损失、商誉损失、替代采购成本或第三方索赔扩大损失承担责任。</strong></li>
+            </ul>
+          </section>
+          <section class="terms-section">
+            <h4>十五、通知与送达</h4>
+            <p>您同意，我们可以通过客户端弹窗、站内消息、短信、电子邮件、系统公告、订单页面、官网公示或您预留的联系方式向您发送与本协议及软件服务相关的通知。前述通知一经发出或展示，即视为有效送达。</p>
+            <p><strong>双方确认：与本协议有关的电子数据、系统日志、授权记录、登录记录、支付记录、工单记录、通知记录、服务器记录、操作记录及其他电子证据，在法律允许范围内可作为争议处理的重要证据。</strong></p>
+          </section>
+          <section class="terms-section">
+            <h4>十六、法律适用与争议解决</h4>
+            <p><strong>本协议的订立、效力、解释、履行、变更、终止及争议解决均适用中华人民共和国法律（为本协议之目的，不含港澳台地区法律）。</strong></p>
+            <p><strong>因本协议或本软件产生的任何争议，双方应先友好协商；协商不成的，按照适用法律确定争议解决方式及有管辖权的机构。</strong></p>
+          </section>
+          <section class="terms-section">
+            <h4>十七、其他条款</h4>
+            <p>本协议部分条款被认定无效、不可执行或不具约束力的，不影响其他条款的效力。未行使或迟延行使权利，不构成对相关权利的放弃。本协议标题仅为阅读便利，不影响条款含义解释。</p>
+            <p>如您对本示例条款、授权规则或项目合作存在疑问，可通过上述联系邮箱与项目维护者沟通。实际部署者应在发行前审阅并替换本示例条款；您继续注册、登录或使用相应部署版本的，视为您已阅读其实际展示的条款。</p>
+          </section>
+        </div>
+      </div>
+    </div>
+    <div class="help-modal is-hidden version-check-modal" id="version-check-modal">
+      <div class="help-dialog version-check-dialog">
+        <div class="help-header">
+          <div>
+            <div class="help-title" id="version-check-title">启动前版本校验</div>
+            <div class="muted" id="version-check-subtitle">正在检查当前客户端是否符合后端版本策略</div>
+          </div>
+        </div>
+        <div class="version-check-message" id="version-check-message">请稍候，正在完成启动前版本校验。</div>
+        <div class="version-check-grid">
+          <section class="terms-section">
+            <h4>版本信息</h4>
+            <ul class="version-check-list" id="version-check-details"></ul>
+          </section>
+          <section class="terms-section">
+            <h4>说明</h4>
+            <p class="version-check-notes" id="version-check-notes">校验通过后软件才会继续进入登录和主界面。</p>
+          </section>
+        </div>
+        <div class="version-check-actions">
+          <button class="ghost" type="button" data-action="retry-version-check">重新校验</button>
+          <button class="ghost" type="button" id="version-check-download" data-action="download-latest-version" hidden>下载最新安装包</button>
+          <button class="primary" type="button" data-action="exit-version-check">退出软件</button>
+        </div>
+      </div>
+    </div>
+    <div class="help-modal is-hidden" id="reset-password-modal">
+      <div class="help-dialog reset-dialog">
+        <div class="help-header">
+          <div>
+            <div class="help-title">找回密码</div>
+            <div class="muted">通过手机号短信验证码重置登录密码</div>
+          </div>
+          <button class="ghost small" data-action="close-reset-password">关闭</button>
+        </div>
+        <div class="reset-form">
+          <label>手机号</label>
+          <input type="text" id="reset-phone" placeholder="请输入手机号" maxlength="11" />
+          <label>短信验证码</label>
+          <div class="auth-code-row">
+            <input type="text" id="reset-code" placeholder="4位验证码" maxlength="4" />
+            <button class="ghost small" type="button" data-auth-action="send-reset-code">发送验证码</button>
+          </div>
+          <label>新密码</label>
+          <div class="auth-password-row">
+            <input type="password" id="reset-password" placeholder="请输入新密码" />
+            <button
+              class="auth-eye"
+              id="reset-password-toggle"
+              type="button"
+              data-auth-action="toggle-reset-password"
+              aria-label="显示密码"
+            >
+              <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M1 12C3.2 7.6 7.1 5 12 5c4.9 0 8.8 2.6 11 7-2.2 4.4-6.1 7-11 7-4.9 0-8.8-2.6-11-7z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M1 12C3.2 7.6 7.1 5 12 5c4.9 0 8.8 2.6 11 7-2.2 4.4-6.1 7-11 7-4.9 0-8.8-2.6-11-7z" />
+                <circle cx="12" cy="12" r="3" />
+                <path d="M3 3l18 18" />
+              </svg>
+            </button>
+          </div>
+          <label>确认新密码</label>
+          <input type="password" id="reset-password-confirm" placeholder="请再次输入新密码" />
+          <div class="reset-actions">
+            <button class="primary" type="button" data-auth-action="submit-reset-password">确认重置</button>
+          </div>
+          <div class="auth-message reset-message" id="reset-password-message"></div>
+        </div>
+      </div>
+    </div>
+    <div class="toast is-hidden" id="toast"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

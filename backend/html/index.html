@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mailboat Desktop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+    <div class="bg-grid"></div>
+
+    <header class="hero">
+      <nav class="topbar">
+        <div class="brand">
+          <span class="brand-dot">MB</span>
+          <span class="brand-text">Mailboat</span>
+        </div>
+        <a
+          class="btn btn-ghost"
+          href="https://github.com/hua1xiao2sheng/Mailboat/releases"
+        >
+          下载 EXE
+        </a>
+      </nav>
+
+      <section class="hero-content reveal">
+        <p class="eyebrow">Desktop Client</p>
+        <h1>Mailboat 批量邮件桌面端</h1>
+        <p class="subtitle">
+          面向多账号批量发送场景，支持时区策略、模板化内容、进度追踪与本地可审计日志。
+        </p>
+        <div class="hero-actions">
+          <a
+            class="btn btn-primary"
+            href="https://github.com/hua1xiao2sheng/Mailboat/releases"
+          >
+            立即下载 Windows 客户端
+          </a>
+          <a class="btn btn-ghost" href="#capabilities">查看能力矩阵</a>
+        </div>
+        <div class="meta">
+          <span>版本：v1.0.0</span>
+          <span>平台：Windows x64</span>
+          <span>安装包：Mailboat Setup 1.0.0.exe</span>
+        </div>
+
+        <div class="chip-row">
+          <span class="chip">本地实时保存</span>
+          <span class="chip">多账号分时发送</span>
+          <span class="chip">时区自动调度</span>
+          <span class="chip">定期补丁更新</span>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section id="capabilities" class="section">
+        <h2>能力矩阵</h2>
+        <div class="capability-grid">
+          <article class="cap-card reveal delay-1">
+            <h3>跨国家时区自动发送</h3>
+            <p>按目标地区时差自动计算发送窗口，减少人工排期。</p>
+          </article>
+          <article class="cap-card reveal delay-2">
+            <h3>多账号分时策略</h3>
+            <p>不同账号独立起发时间与间隔，避免同一时段拥堵。</p>
+          </article>
+          <article class="cap-card reveal delay-3">
+            <h3>本地实时发送记录</h3>
+            <p>发送过程实时落盘，可回溯、可核查、可导出。</p>
+          </article>
+          <article class="cap-card reveal delay-4">
+            <h3>账号维度成功统计</h3>
+            <p>按账号查看当日成功数量与额度占用，便于运营控制。</p>
+          </article>
+          <article class="cap-card reveal delay-1">
+            <h3>模板中心</h3>
+            <p>主题、正文、附件路径统一模板化，支持快速切换。</p>
+          </article>
+          <article class="cap-card reveal delay-2">
+            <h3>实时发送进度</h3>
+            <p>任务、成功、失败、待发状态实时展示，异常快速定位。</p>
+          </article>
+          <article class="cap-card reveal delay-3">
+            <h3>问题反馈通道</h3>
+            <p>内置反馈入口，支持关联发件账号提交诊断信息。</p>
+          </article>
+          <article class="cap-card reveal delay-4">
+            <h3>定期补丁</h3>
+            <p>持续发布修复与功能补丁，保持稳定与安全性。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>核心流程</h2>
+        <div class="step-grid">
+          <div class="step reveal delay-1">
+            <span>01</span>
+            <p>下载并安装 EXE 客户端</p>
+          </div>
+          <div class="step reveal delay-2">
+            <span>02</span>
+            <p>配置账号池、模板与发送策略</p>
+          </div>
+          <div class="step reveal delay-3">
+            <span>03</span>
+            <p>导入名单并实时监控发送进度</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section cta reveal">
+        <h2>准备好开始了吗？</h2>
+        <p>下载客户端后即可本地部署并开始发件任务。</p>
+        <a
+          class="btn btn-primary"
+          href="https://github.com/hua1xiao2sheng/Mailboat/releases"
+        >
+          下载 Mailboat Desktop
+        </a>
+      </section>
+    </main>
+
+    <footer>
+      <p>© <span id="year"></span> Mailboat. All rights reserved.</p>
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

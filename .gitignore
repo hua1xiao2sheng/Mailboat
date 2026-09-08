@@ -1,0 +1,95 @@
+# ------------------------------
+# Python
+# ------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.python-version
+
+.venv/
+venv/
+env/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# ------------------------------
+# Backend local config / runtime
+# ------------------------------
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/uploads/
+backend/uvicorn_smoketest.log
+
+# ------------------------------
+# Electron desktop app artifacts
+# ------------------------------
+desktop-app/node_modules/
+desktop-app/release/
+desktop-app/.npm-cache/
+desktop-app/.cython_build/
+desktop-app/.protected_py/
+desktop-app/*.log
+desktop-app/npm-debug.log*
+desktop-app/yarn-debug.log*
+desktop-app/yarn-error.log*
+
+# ------------------------------
+# App runtime data (local only)
+# ------------------------------
+data/
+logs/
+attachments/
+
+config/gmail/
+config/gmail_tokens/
+config/announcement_config.json
+announcement_config.json
+
+# Backup snapshots generated at runtime
+data/*.recover_backup_*.json
+data/*.restore_subject_content_backup_*.json
+
+# ------------------------------
+# IDE / OS
+# ------------------------------
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ------------------------------
+# Secrets / local certificates
+# ------------------------------
+backend/*.pem
+backend/*.key
+backend/*.p12
+backend/*.pfx
+
+# ------------------------------
+# Test data / generated artifacts
+# ------------------------------
+test_split/
+backend/*.sqlite3
+backend/*.db
+backend/html/downloads/*.exe
+*.stackdump
+*.tmp
+
+# Local documentation screenshots
+image/README/
+
+# Local task scratch files
+.tmp/
