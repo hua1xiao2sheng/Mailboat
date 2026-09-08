@@ -1,5 +1,7 @@
 # Mailboat
 
+[简体中文](README.md) | [English](README_EN.md)
+
 一款面向科研联系、招生咨询等场景的桌面批量邮件管理工具。Mailboat 将联系人导入、多发件账号、邮件模板、附件、定时发送和发送记录集中在一个界面中，并支持通用 SMTP 与 Gmail API 两种发信方式。
 
 > 请仅向与你的业务或研究活动有关、且允许被联系的收件人发送邮件。使用前请遵守所在地法律、邮箱服务商规则及反垃圾邮件政策。
@@ -103,6 +105,7 @@ app2/
 │   ├── renderer/                # 客户端页面、样式与交互
 │   └── scripts/                 # Python 模块打包脚本
 ├── backend/                     # FastAPI 服务端
+├── docs/images/                 # README 脱敏界面截图
 ├── samples/import_example.xlsx  # 联系人导入示例
 ├── email_sender.py              # SMTP / Gmail API 发信核心
 ├── import_teachers_from_excel.py# Excel / CSV 导入与去重
@@ -110,7 +113,8 @@ app2/
 ├── gmail_oauth_manager.py       # Gmail OAuth 授权管理
 ├── smtp_check.py                # SMTP 配置检查
 ├── config.py                    # Python 模块的安全默认配置
-└── README.md
+├── README.md                    # 中文说明
+└── README_EN.md                 # English documentation
 ```
 
 ## 快速开始
@@ -160,6 +164,8 @@ cd desktop-app
 npm ci
 npm start
 ```
+
+源码开发模式按单机本地应用运行，可直接进入主界面；正式打包发行版仍保留认证流程。
 
 Electron 会调用当前可用的 Python。项目也会优先检查以下开发环境：
 

@@ -16,7 +16,8 @@ const API_BASE = localStorage.getItem('apiBase') || DEFAULT_API_BASE;
 const TEST_LIST_KEY = 'testList';
 const DEMO_MODE = Boolean(window.mailpilot?.isDemoMode);
 // This public desktop build runs as a single-user local application.
-const LOCAL_NO_AUTH = true;
+// Source development builds may enter directly; packaged releases keep authentication enabled.
+const LOCAL_NO_AUTH = Boolean(window.mailpilot?.isLocalSourceBuild);
 const AUTH_BYPASS_ENABLED = LOCAL_NO_AUTH || DEMO_MODE;
 
 const SMTP_PRESETS = {
