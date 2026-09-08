@@ -6,10 +6,18 @@ const subtitle = document.getElementById('view-subtitle');
 // Public source builds use the local backend by default.
 // Set this to your own HTTPS endpoint when deploying a hosted service.
 const REMOTE_API_BASE = '';
-const LOCAL_API_BASE = 'http://127.0.0.1:6661';
+const LEGACY_LOCAL_API_BASE = 'http://127.0.0.1:6661';
+const LOCAL_API_BASE = 'http://127.0.0.1:8000';
+if (localStorage.getItem('apiBase') === LEGACY_LOCAL_API_BASE) {
+  localStorage.setItem('apiBase', LOCAL_API_BASE);
+}
 const DEFAULT_API_BASE = LOCAL_API_BASE;
 const API_BASE = localStorage.getItem('apiBase') || DEFAULT_API_BASE;
 const TEST_LIST_KEY = 'testList';
+const DEMO_MODE = Boolean(window.mailpilot?.isDemoMode);
+// This public desktop build runs as a single-user local application.
+const LOCAL_NO_AUTH = true;
+const AUTH_BYPASS_ENABLED = LOCAL_NO_AUTH || DEMO_MODE;
 
 const SMTP_PRESETS = {
   'gmail.com': { server: 'smtp.gmail.com', port: 465 },
@@ -432,7 +440,7 @@ function setAuthed(user, token) {
 }
 
 function hasAccess() {
-  return Boolean(authToken);
+  return AUTH_BYPASS_ENABLED || Boolean(authToken);
 }
 
 async function apiRequest(path, options = {}) {
@@ -456,6 +464,30 @@ async function apiRequest(path, options = {}) {
 }
 
 async function checkAuth() {
+  if (AUTH_BYPASS_ENABLED) {
+    const localUsername = DEMO_MODE ? '本地演示' : '本地用户';
+    currentUser = { id: 0, username: localUsername };
+    accessState = {
+      user: {
+        id: 0,
+        username: localUsername,
+        can_send: true,
+        membership_status: 'local',
+        subscription_active: true,
+        subscription_plan_name: DEMO_MODE ? '演示模式' : '本地版',
+        today_success: 0,
+        today_remaining: 20,
+        daily_limit: 20,
+      },
+      plans: [],
+      default_plan_code: '',
+    };
+    if (userEmailEl) userEmailEl.textContent = localUsername;
+    setAuthMessage('');
+    setAuthOverlay(false);
+    renderMembershipCard();
+    return;
+  }
   if (!authToken) {
     showAuth('请登录后继续');
     return;
@@ -667,6 +699,10 @@ function renderMembershipCard() {
 }
 
 async function refreshAccessState(options = {}) {
+  if (AUTH_BYPASS_ENABLED) {
+    renderMembershipCard();
+    return accessState;
+  }
   if (!authToken) {
     accessState = null;
     renderMembershipCard();
@@ -690,6 +726,7 @@ async function refreshAccessState(options = {}) {
 }
 
 function ensureAccessRefreshTimer() {
+  if (AUTH_BYPASS_ENABLED) return;
   if (accessRefreshTimer) return;
   accessRefreshTimer = setInterval(() => {
     if (!hasAccess()) return;
@@ -919,6 +956,7 @@ function openPaymentModal(planCode = null) {
 
 async function ensureCanSendOrPrompt() {
   if (!ensureAuth()) return false;
+  if (AUTH_BYPASS_ENABLED) return true;
   const payload = await refreshAccessState({ silent: true });
   if (payload?.user?.can_send) {
     return true;
@@ -5320,6 +5358,11 @@ setResetCodeButtonState('发送验证码', false);
 void (async () => {
   await loadStorageInfo();
   await loadAppVersion();
+  if (DEMO_MODE) {
+    hideVersionCheckState();
+    await continueStartupAfterVersionCheck();
+    return;
+  }
   const versionOk = await runStartupVersionCheck();
   if (!versionOk) return;
   await continueStartupAfterVersionCheck();

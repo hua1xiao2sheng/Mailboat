@@ -1,6 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('mailpilot', {
+  // Opt-in local demo mode. It is intentionally unavailable in packaged builds.
+  isDemoMode: process.env.MAILBOAT_DEMO_MODE === '1' && process.defaultApp === true,
   selectFile: () => ipcRenderer.invoke('select-file'),
   downloadImportSample: () => ipcRenderer.invoke('download-import-sample'),
   selectAttachments: () => ipcRenderer.invoke('select-attachments'),

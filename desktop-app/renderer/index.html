@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="auth-overlay" id="auth-overlay">
+    <div class="auth-overlay is-hidden" id="auth-overlay">
       <div class="auth-card">
         <div class="auth-header">
           <div class="brand-mark">ML</div>
@@ -163,8 +163,7 @@
             <button class="primary" data-action="start-send">开始发送</button>
             <button class="ghost small" data-action="toggle-pin" title="置顶窗口">📌</button>
             <div class="user-meta" id="user-meta">
-              <span class="muted" id="user-email">未登录</span>
-              <button class="ghost small" data-action="logout">退出</button>
+              <span class="muted" id="user-email">本地用户</span>
             </div>
           </div>
         </header>
